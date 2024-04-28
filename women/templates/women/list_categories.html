@@ -1,0 +1,13 @@
+<!--использую inclusion tags из women_tags-->
+<!--{% for cat in cats %}-->
+<!--    <li><a href="{% url 'category' cat.id %}">{{ cat.name }}</a></li>-->
+<!--{% endfor %}-->
+
+<!--Добавил подсветку-->
+{% for cat in cats %}
+    {% if cat.id == cat.selected %}
+        <li class="selected">{{ cat.name }}</li>
+    {% else %}
+        <li><a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a></li>
+    {% endif %}
+{% endfor %}

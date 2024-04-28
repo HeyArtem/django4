@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!--можно title тоже поместить в include -->
+    <!--<h1>{{ title }}</h1>-->
+
+    <!--Подключение рубрик Актрисы Певицы Спортсменки-->
+    {% include 'women/includes/nav.html' %}
+
+<ul>
+        {% for p in posts %}
+            {% if p.is_published %}
+                <li>
+                    <h2>{{ p.title }}</h2>
+                    <p>{{ p.content }}</p>
+
+                    <!--вывод url на статью по имени шаблона-->
+                    <p><a href="{% url 'post' p.id %}">Читать пост</a></p>
+
+                    <!--Если не последняя итерация-отобразить черту <hr>-->
+                    <!--Почему перестала работать?-->
+                    {% if not forloop.last %} <hr> {% endif %}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <!--Подключение рубрик Актрисы Певицы Спортсменки.
+    only  значит, чо я не передаю title-->
+    {% include 'women/includes/nav.html' only %}
+
+    <br>
+    <p>Второй вариант использования include. Подключил шаблон только с переменной title2</p>
+    {% include 'women/includes/nav.html' only with title2='Новая переменная' %}
+
+{% endblock %}
+
+
