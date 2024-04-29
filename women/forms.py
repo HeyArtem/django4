@@ -1,5 +1,5 @@
 from django import forms
-from .models import Category, Husband
+from .models import Category, Husband, Women
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.utils.deconstruct import deconstructible
@@ -34,42 +34,12 @@ class RussianValidator:
             raise ValidationError(self.message, code=self.code)
 
 
-class AddPostForm(forms.Form):
+class AddPostForm(forms.ModelForm):
     '''
     Простецкий вар формы. Поля лучше называть, как в модели.
     С валидатором clean_title
     '''
-    title = forms.CharField(
-        # min_length=5,
-        max_length=255,
-        label='Заголовок',
-        widget=forms.TextInput(attrs={'class': 'form-input'}),
-        # validators=[
-        #     RussianValidator()
-        # ],
-        validators=[
-            MinLengthValidator(5, message="Нужно 5 символов"),
-            MaxLengthValidator(100, message="Максимум 100 символов"),
-        ],
-    )
-    slug = forms.SlugField(
-        # max_length=255,
-        label='URL',
-        validators=[
-            MinLengthValidator(5, message="Минимум 5 forms символов"),
-            MaxLengthValidator(100, message="Максимум 100 символов"),
-        ]
-    )
-    content = forms.CharField(
-        widget=forms.Textarea(attrs={'colls': 50, 'rows': 5}),
-        required=False,
-        label='Контент'
-    )  # required- не обязательный для заполнения
-    is_published = forms.BooleanField(
-        required=False,
-        initial=True,
-        label='Статус'
-    )  # initial=True - по умолчанию, уже галочка в форме
+
     cat = forms.ModelChoiceField(
         queryset=Category.objects.all(),
         empty_label='Категория не выбрана',
@@ -82,14 +52,34 @@ class AddPostForm(forms.Form):
         label='Муж'
     )
 
-    def clean_title(self):
+    class Meta:
         '''
-        Простой валидатор для title
-        naming - clean_NameField
+        Появятся все поля, кроме автоматических (дата создания и обновления)
         '''
-        title = self.cleaned_data['title']
-        ALLOWED_CHARS = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯабвгдеёжзийклмнопрстуфхцчшщбыъэюя0123456789- "
+        model = Women
+        # fields = '__all__'
+        fields = ['title', 'slug', 'content', 'is_published', 'husband', 'cat', 'tags', ]
 
-        if not (set(title) <= set(ALLOWED_CHARS)):
-            raise ValidationError("Должны присутствовать только русские символы, дефис и пробел.")
+        # Виджет для title & content
+        widgets = {
+           'title': forms.TextInput(attrs={'class': 'form-input'}),
+           'content': forms.Textarea(attrs={'cols': 60,  'rows': 5}),
+        }
+
+        # Меняю имя для слага
+        labels = {'slug': 'URL'}
+
+    # Валидатор для title
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if len(title) > 50:
+            raise ValidationError('Длина превышает 50 символов')
         return title
+
+class UploadFileForm(forms.Form):
+    '''
+    Определил класс формы для загрузки файла
+    Форма (не привязана к модели - forms.Form)
+    '''
+    # file = forms.FileField(label='Фаил')
+    file = forms.ImageField(label='Фаил')
