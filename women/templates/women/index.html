@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <ul class="list-articles">
 	{% for p in posts %}
 		<li> <div class="article-panel">
@@ -8,11 +9,17 @@
 			<p class="last">Дата: {{p.time_update|date:"d-m-Y H:i:s"}} </p>
 		</div>
 
+<!--Вывожу изображение (thumb-маленькое)-->
+		{% if p.photo %}
+			<p><img src="{{ p.photo.url }}" class="img-article-left thumb"></p>
+		{% endif %}
+
+<!--Вывожу title-->
 			<h2>{{p.title}}</h2>
 
+<!--Вывожу content-->
 	<!--не экранировать теги в тексте-->
 	{% autoescape off %}
-
 	<!--truncatewords:50(выводить 50 слов) linebreaks(вывод текста построчно)-->
 	{{p.content|linebreaks|truncatewords:50}}
 	{% endautoescape %}

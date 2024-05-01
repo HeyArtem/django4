@@ -114,6 +114,11 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+# на уровне всего проекта укажу папку Где будут сохраняться все загружаемые файлы
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Что бы выводились на стр фото, а не ссылки
+MEDIA_URL = '/media/'
 
 # Тестово переношу static и прописываю новый путь
 # STATICFILES_DIRS = [ BASE_DIR / 'sitewomen/static']

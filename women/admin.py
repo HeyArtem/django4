@@ -1,4 +1,6 @@
 from django.contrib import admin, messages
+from django.utils.safestring import mark_safe
+
 from .models import Women, Category
 
 
@@ -28,25 +30,24 @@ class MarriedFilter(admin.SimpleListFilter):
             return queryset.filter(husband__isnull=True)
 
 
-
 @admin.register(Women)
 class WomenAdmin(admin.ModelAdmin):
     # Поля, котор будут отображаться в форме
-    fields = ['title', 'slug', 'content', 'cat', 'husband', 'tags']
+    fields = ['title', 'slug', 'content', 'photo', 'post_photo', 'cat', 'husband', 'tags']
     # exclude = ['tags', 'is_published']  # Антипод fields (исключить поля)
 
     # Поля только для чтения
-    # readonly_fields = ['slug']
+    readonly_fields = ['post_photo']
 
     # Автоматич формирование slug (только с отключенным readonly_fields)
-    prepopulated_fields = {'slug': ('title', )}
+    prepopulated_fields = {'slug': ('title',)}
 
     # Улучшенный ввод тегов
     filter_horizontal = ['tags']
     # filter_vertical = ['tags']
 
     # ДопПоля в админке с женщинами
-    list_display = ('title', 'time_create', 'is_published', 'cat', 'brief_info')
+    list_display = ('title', 'post_photo', 'time_create', 'is_published', 'cat')
 
     # Кликабельность полей д\редактирования (не должно быть в list_editable)
     list_display_links = ('title',)
@@ -70,17 +71,20 @@ class WomenAdmin(admin.ModelAdmin):
     # Панель фильтрации справа
     list_filter = [MarriedFilter, 'cat__name', 'is_published']
 
+    # Кнопка "Сохранить" вверху и внизу страницы редактирования поста
+    save_on_top = True
 
-
-
-    @admin.display(description='Краткое описание', ordering='content')
-    def brief_info(self, women: Women):
+    @admin.display(description='Изображение', ordering='content')
+    def post_photo(self, women: Women):
         '''
-        Доп.столбец 'Краткое описание'. Добавить в list_display
-        ordering='content' - параметр для сортировки, в заголовке таблицы
-        сортировка по лексико-графическому порядку (не по кол-вву символов)
+        Вычисляемое поле, для вывода миниатюры фото в админке
+        рядом с постом. Возвращает html-строку.
+        mark_safe - что бы html-теги не экранировались
+        Прописать в list_display, fields, readonly_fields
         '''
-        return f"Описание {len(women.content)} символов"
+        if women.photo:
+            return mark_safe(f"<img src='{women.photo.url}' width=50>")
+        return 'Без фото'
 
     @admin.action(description='Опубликовать выбранные записи')
     def set_published(self, request, queryset):
@@ -111,5 +115,3 @@ class CategoryAdmin(admin.ModelAdmin):
 
     # Кликабельность полей д\редактирования
     list_display_links = ('id', 'name')
-
-# admin.site.register(Women, WomenAdmin)
