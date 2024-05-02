@@ -38,6 +38,7 @@ class AddPostForm(forms.ModelForm):
     '''
     Простецкий вар формы. Поля лучше называть, как в модели.
     С валидатором clean_title
+    ! экземпляр (forms.ModelForm)
     '''
 
     cat = forms.ModelChoiceField(

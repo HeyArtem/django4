@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView
 from .models import Women, Category, TagPost, UpLoadFiles
 from .forms import AddPostForm, UploadFileForm
 from django.views import View
@@ -61,34 +62,79 @@ def about(request):
     )
 
 
-class AddPage(View):
+class AddPage(CreateView):
     '''
-    Добавление статьи с помощью моей формы
-    Класс в учебных целях
+    Автоматизированное представление html-формы.
+    Передает в шаблон переменную form
     '''
+    # Класс формы (без вызова)
+    form_class = AddPostForm
 
-    def get(self, request):
-        form = AddPostForm()
-        data = {
-            'menu': menu,
-            'title': 'Добавление статьи',
-            'form': form
-        }
-        return render(request, 'women/addpage.html', data)
+    # # За место form_class, пропишу модель в ручную.
+    # model = Women
+    # # fields = '__all__'
+    # # Или свои поля
+    # fields = ['title', 'slug', 'content',  'cat', 'is_published',]
 
-    def post(self, request):
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Теперь, когда, я привязал forms к models, у меня появилась такая воз-ть сохранять
-            form.save()
-            return redirect('home')
+    # Имя шаблона
+    template_name = 'women/addpage.html'
 
-        data = {
-            'menu': menu,
-            'title': 'Добавление статьи',
-            'form': form
-        }
-        return render(request, 'women/addpage.html', data)
+    # URL на который будет перенаправление после успешной отправки данных
+    # reverse - возвращает полный маршрут, но при запуске кода, будет ошибка, тк маршрут 'home'не существует на момент определения AddPage-класса
+    # reverse_lazy - потому, что она будет выполняться, когда придет ее очередь (ее можно всегда вызывать за место reverse)
+    success_url = reverse_lazy('home')
+    extra_context = {
+        'menu': menu,
+        'title': 'Добавление статьи'
+    }
+
+class UpdatePage(UpdateView):
+    ''' Изменение существ-их записей) '''
+    model = Women
+    fields = ['title', 'content', 'photo',  'cat', 'is_published',]
+
+    # Имя шаблона
+    template_name = 'women/addpage.html'
+
+    # URL на который будет перенаправление после успешной отправки данных
+    # reverse - возвращает полный маршрут, но при запуске кода, будет ошибка, тк маршрут 'home'не существует на момент определения AddPage-класса
+    # reverse_lazy - потому, что она будет выполняться, когда придет ее очередь (ее можно всегда вызывать за место reverse)
+    success_url = reverse_lazy('home')
+    extra_context = {
+        'menu': menu,
+        'title': 'Редачу статейку'
+    }
+
+
+
+# class AddPage(View):
+#     '''
+#     Добавление статьи с помощью моей формы
+#     Класс в учебных целях
+#     '''
+#
+#     def get(self, request):
+#         form = AddPostForm()
+#         data = {
+#             'menu': menu,
+#             'title': 'Добавление статьи',
+#             'form': form
+#         }
+#         return render(request, 'women/addpage.html', data)
+#
+#     def post(self, request):
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             # Теперь, когда, я привязал forms к models, у меня появилась такая воз-ть сохранять
+#             form.save()
+#             return redirect('home')
+#
+#         data = {
+#             'menu': menu,
+#             'title': 'Добавление статьи',
+#             'form': form
+#         }
+#         return render(request, 'women/addpage.html', data)
 
 
 def contact(request):
