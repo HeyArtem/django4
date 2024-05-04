@@ -1,22 +1,19 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 from .models import Women, Category, TagPost, UpLoadFiles
 from .forms import AddPostForm, UploadFileForm
 from django.views import View
-
-# Меню-вкладки
-menu = [
-    {'title': 'О сайтище', 'url_name': 'about'},
-    {'title': 'Что-то добавить', 'url_name': 'add_page'},
-    {'title': 'Обратная связь', 'url_name': 'contact'},
-    {'title': 'Стать своим', 'url_name': 'login'},
-]
+from .utils import DataMixin
 
 
-class WomenHome(ListView):
-    ''' Главнейшая страница '''
+class WomenHome(DataMixin, ListView):
+    '''
+    Главнейшая страница.
+    Добавляю mixin
+    '''
+    print('[!] class WomenHome(ListView)')
     # Привязка к модели
     # model = Women
 
@@ -27,16 +24,11 @@ class WomenHome(ListView):
     # Если, я хочу рабоать в шаблоне со своей переменной,
     # то я должен ее здесь прописать (без этого работаю с object_list)
     context_object_name = 'posts'
-
-    # Главное меню и вкладки. extra_context-можно использовать
-    # д\заранее подгото-ых данных. get-запросы не принимает!
-    extra_context = {
-        'title': 'Главнейшая страница',
-        'menu': menu,
-        'cat_selected': 0
-    }
+    title_page = 'Главнейшая страница'
+    cat_selected = 0
 
     def get_queryset(self):
+        print('[!] get_queryset from class WomenHome(DataMixin, ListView)')
         '''
         Вывожу записи со статусом Опубликована
         Привязку к модели убрать. # model = Women
@@ -46,10 +38,11 @@ class WomenHome(ListView):
 
 def about(request):
     '''О сайте'''
+    print('[!] def about(request)')
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            # 'file' - птмчт в UploadFileForm так назвал
+            # 'file' - птмчт в UploadFileForm так назвал.
             # Создаю запись через объект модели
             fp = UpLoadFiles(file=form.cleaned_data['file'])
             fp.save()
@@ -58,40 +51,35 @@ def about(request):
     return render(
         request,
         'women/about.html',
-        {'title': 'О сайте', 'menu': menu, 'form': form}
+        {'title': 'О сайте', 'form': form}
     )
 
 
-class AddPage(CreateView):
+class AddPage(DataMixin, CreateView):
     '''
-    Автоматизированное представление html-формы.
-    Передает в шаблон переменную form
+    Добавление статьи. Автоматизированное представление html-формы.
+    Передает в шаблон переменную form.
+    Добавляю mixin.
     '''
+    print('[!] class AddPage(CreateView)')
     # Класс формы (без вызова)
     form_class = AddPostForm
 
-    # # За место form_class, пропишу модель в ручную.
-    # model = Women
-    # # fields = '__all__'
-    # # Или свои поля
-    # fields = ['title', 'slug', 'content',  'cat', 'is_published',]
-
     # Имя шаблона
     template_name = 'women/addpage.html'
+    title_page = 'Добавление статьи'
 
     # URL на который будет перенаправление после успешной отправки данных
     # reverse - возвращает полный маршрут, но при запуске кода, будет ошибка, тк маршрут 'home'не существует на момент определения AddPage-класса
     # reverse_lazy - потому, что она будет выполняться, когда придет ее очередь (ее можно всегда вызывать за место reverse)
     success_url = reverse_lazy('home')
-    extra_context = {
-        'menu': menu,
-        'title': 'Добавление статьи'
-    }
 
-class UpdatePage(UpdateView):
+
+class UpdatePage(DataMixin, UpdateView):
     ''' Изменение существ-их записей) '''
+    print('[!] class UpdatePage(UpdateView)')
     model = Women
-    fields = ['title', 'content', 'photo',  'cat', 'is_published',]
+    fields = ['title', 'content', 'photo', 'cat', 'is_published', ]
 
     # Имя шаблона
     template_name = 'women/addpage.html'
@@ -100,71 +88,28 @@ class UpdatePage(UpdateView):
     # reverse - возвращает полный маршрут, но при запуске кода, будет ошибка, тк маршрут 'home'не существует на момент определения AddPage-класса
     # reverse_lazy - потому, что она будет выполняться, когда придет ее очередь (ее можно всегда вызывать за место reverse)
     success_url = reverse_lazy('home')
-    extra_context = {
-        'menu': menu,
-        'title': 'Редачу статейку'
-    }
-
-
-
-# class AddPage(View):
-#     '''
-#     Добавление статьи с помощью моей формы
-#     Класс в учебных целях
-#     '''
-#
-#     def get(self, request):
-#         form = AddPostForm()
-#         data = {
-#             'menu': menu,
-#             'title': 'Добавление статьи',
-#             'form': form
-#         }
-#         return render(request, 'women/addpage.html', data)
-#
-#     def post(self, request):
-#         form = AddPostForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             # Теперь, когда, я привязал forms к models, у меня появилась такая воз-ть сохранять
-#             form.save()
-#             return redirect('home')
-#
-#         data = {
-#             'menu': menu,
-#             'title': 'Добавление статьи',
-#             'form': form
-#         }
-#         return render(request, 'women/addpage.html', data)
+    title_page = 'Редачу статейку'
 
 
 def contact(request):
     '''Обратная связь'''
+    print('[!] def contact(request)')
     return HttpResponse("Обратная связь")
 
 
 def login(request):
     '''Авторизация'''
+    print('[!] def login(request)')
     return HttpResponse("Авторизация")
 
 
-def show_post(request, post_slug):
-    '''Отображение статьи'''
-    # либо получаю одну запись, либо генерирую исключение 404
-    post = get_object_or_404(Women, slug=post_slug)
-    data = {
-        'title': post.title,
-        'menu': menu,
-        'post': post,
-        'cat_selected': 1,  # единица для примера
-    }
-    return render(request, 'women/post.html', data)
-
-
-class ShowPost(DetailView):
+class ShowPost(DataMixin, DetailView):
+    print('[!] class ShowPost(DataMixin, DetailView)')
     '''
-    Детальный вывод поста
+    Наполнение шаблона информацией.
+    Использую Mixin
+    (пишется на I месте, создам его в women/utils.py)
     '''
-    # model = Women
     template_name = 'women/post.html'
 
     # По этой переменной будет выбираться статья (из маршрута)
@@ -172,6 +117,7 @@ class ShowPost(DetailView):
     context_object_name = 'post'
 
     def get_context_data(self, **kwargs):
+        print('[!] get_context_data in ShowPost')
         '''
         Переопределяю метод get_context_data
         что бы работать с динамисес-ми данными
@@ -179,12 +125,11 @@ class ShowPost(DetailView):
         # Формирую свой контекст
         context = super().get_context_data(**kwargs)
 
-        # имя страницы
-        context['title'] = context['post'].title
-        context['menu'] = menu
-        return context
+        # get_mixin_context- я создал в women/utils.py
+        return self.get_mixin_context(context, title=context['post'].title)
 
     def get_object(self, queryset=None):
+        print('[!] get_object in ShowPost')
         '''
         Что бы не выводилсь статьи со статусом Черновик по слагу
         Мы будем отбирать ту запись, котор будет отображаться ЧТО ЧТО
@@ -193,8 +138,9 @@ class ShowPost(DetailView):
         return get_object_or_404(Women.published, slug=self.kwargs[self.slug_url_kwarg])
 
 
-class WomenCategory(ListView):
+class WomenCategory(DataMixin, ListView):
     ''' Отображение катeгорий '''
+    print('[!] class WomenCategory(ListView)')
     # Путь к шаблону.
     template_name = 'women/index.html'
 
@@ -221,14 +167,11 @@ class WomenCategory(ListView):
 
         # Название категории
         cat = context['posts'][0].cat
-
-        # имя страницы
-        context['title'] = 'Категория - ' + cat.name
-        context['menu'] = menu
-
-        # id-категории
-        context['cat_selected'] = cat.pk
-        return context
+        return self.get_mixin_context(
+            context,
+            title='Категория - ' + cat.name,
+            cat_selected=cat.pk,
+        )
 
 
 def page_not_found(request, exception):
@@ -236,43 +179,13 @@ def page_not_found(request, exception):
     Обработчик (хэндлер) неправильных адресов.
     Работает при DEBUG = False
     '''
-    print('[!] page_not_found')
+    print('[!] def page_not_found(request, exception)')
     return HttpResponseNotFound('<h1> Куда ты тычешь!? </h1>')
 
 
-def show_tag_postlist(request, tag_slug):
-    '''
-    Фу-я представления статей по опред тегу
-    '''
-    print('[!] show_tag_postlist')
-
-    # Из модели TagPost получаю тег
-    tag = get_object_or_404(TagPost, slug=tag_slug)
-
-    '''
-    Получ все статьи, котор связаны с этим тегом через объект tag, 
-    через менеджер обратного сязывания related_name='tags', 
-    получаю все записи связанные с данным тегом (опубликованные)
-    '''
-    # posts = tag.tags.filter(is_published=Women.Status.PUBLISHED)
-
-    # утстраняю дублирующие запросы
-    posts = tag.tags.filter(is_published=Women.Status.PUBLISHED).select_related('cat')
-    print(f'[!] tag: {tag}\nposts: {posts} ')
-
-    data = {
-        'title': f'Тег: {tag.tag}',
-        'menu': menu,
-        'posts': posts,
-        'cat_selected': None  # Если None-синим ни чего отображаться не должно
-    }
-    return render(request, 'women/index.html', context=data)
-
-
-class TagPostList(ListView):
-    '''
-    Вывод  постов по Тегам
-    '''
+class TagPostList(DataMixin, ListView):
+    ''' Вывод постов по Тегам '''
+    print('[!] class TagPostList(ListView)')
     # Путь к шаблону.
     template_name = 'women/index.html'
 
@@ -298,13 +211,32 @@ class TagPostList(ListView):
         родительского класса и сохранив в переменную context.
         Далее добавляем в наш словарь 'context' еще несколько ключ-значений,
         '''
+
         context = super().get_context_data(**kwargs)
 
         # Название тега
         tag = TagPost.objects.get(slug=self.kwargs['tag_slug'])
+        return self.get_mixin_context(
+            context,
+            title='Тег: ' + tag.tag,
+        )
 
-        # имя страницы
-        context['title'] = 'Тег: ' + tag.tag
-        context['menu'] = menu
-        context['cat_selected'] = None
-        return context
+
+class DeletePage(DeleteView):
+    ''' Удаление статьи '''
+    print('[!] class DeletePage(DeleteView)')
+
+    # Привязка к модели
+    model = Women
+
+    # Переменная, котор буду передавать в контексте
+    context_object_name = 'posts'
+
+    # Шаблон удаления
+    template_name = 'women/delete.html'
+
+    # Переадресация после удаления
+    success_url = reverse_lazy('home')
+
+    # Если несуществующий Тэг-404
+    allow_empty = False
