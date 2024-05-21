@@ -11,6 +11,9 @@ class DataMixin:
     Это Миксин
     помогает сократить дублирование кода в тексте программы
     '''
+    # Пагинация. Когда используется ListView, то автоматически в шаблон
+    # передаются переменные paginator & page_obj
+    paginate_by = 5
     title_page = None
     cat_selected = None
     extra_context = {}

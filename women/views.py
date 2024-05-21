@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -27,6 +28,10 @@ class WomenHome(DataMixin, ListView):
     title_page = 'Главнейшая страница'
     cat_selected = 0
 
+    # Пагинация. Когда используется ListView, то автоматически в шаблон
+    # передаются переменные paginator & page_obj
+    # paginate_by = 3
+
     def get_queryset(self):
         print('[!] get_queryset from class WomenHome(DataMixin, ListView)')
         '''
@@ -39,19 +44,27 @@ class WomenHome(DataMixin, ListView):
 def about(request):
     '''О сайте'''
     print('[!] def about(request)')
-    if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            # 'file' - птмчт в UploadFileForm так назвал.
-            # Создаю запись через объект модели
-            fp = UpLoadFiles(file=form.cleaned_data['file'])
-            fp.save()
-    else:
-        form = UploadFileForm()
+    contact_list = Women.published.all().select_related('cat')
+    paginator = Paginator(contact_list, 3)
+
+    # GET-запрос из которого я получаю номер текущей страницы
+    page_number = request.GET.get('page')
+    # Получаю текущую страницу по номеру (page_number)
+    page_obj = paginator.get_page(page_number)
+
+    # if request.method == 'POST':
+    #     form = UploadFileForm(request.POST, request.FILES)
+    #     if form.is_valid():
+    #         # 'file' - птмчт в UploadFileForm так назвал.
+    #         # Создаю запись через объект модели
+    #         fp = UpLoadFiles(file=form.cleaned_data['file'])
+    #         fp.save()
+    # else:
+    #     form = UploadFileForm()
     return render(
         request,
         'women/about.html',
-        {'title': 'О сайте', 'form': form}
+        {'title': 'О сайте', 'page_obj': page_obj}
     )
 
 
@@ -149,6 +162,7 @@ class WomenCategory(DataMixin, ListView):
 
     # Если несуществующий слаг-404
     allow_empty = False
+
 
     def get_queryset(self):
         '''

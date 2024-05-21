@@ -31,3 +31,42 @@
 </ul>
 {% endblock %}
 
+<!--Блок пагинации-->
+{% block navigation %}
+
+<!--Проверка, есть ли еще страницы, кроме одной текущей-->
+{% if page_obj.has_other_pages %}
+	<nav class="list-pages">
+		<ul>
+			<!--Если есть предудущие страницы, выводить "<"-->
+			{% if page_obj.has_previous %}
+				<li class="page-num">
+					<a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
+				</li>
+			{% endif %}
+
+			{% for p in paginator.page_range %}
+
+			<!--Если текущая страница, то не отображать, как ссылка-->
+			{% if page_obj.number == p %}
+				<li class="page-num page-num-selected">{{ p }}</li>
+
+			<!--Выводить только по два номера стр перед и после выбранной стр -->
+			{% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+				<li class="page-num">
+					<a href="?page={{ p }}">{{ p }}</a>
+				</li>
+			{% endif %}
+			{% endfor %}
+
+			<!--Если есть следующие страницы, выводить " > "-->
+			{% if page_obj.has_next %}
+				<li class="page-num">
+					<a href="?page={{ page_obj.next_page_number }}">&gt;</a>
+				</li>
+			{% endif %}
+		</ul>
+	</nav>
+{% endif %}
+{% endblock %}
+<!--Конец Блок пагинации-->
