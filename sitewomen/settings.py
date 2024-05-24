@@ -29,15 +29,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',  # что бы django подключал статич ф к проекту
     'django_extensions',  # Расширение для удобства работы в терминале с БД
     'women.apps.WomenConfig',
+    'users',   # Авторизация и регистрация пользователей
     'debug_toolbar',    # django-toolbar
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware', # Авторизация и регистрация пользователей
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Авторизация и регистрация пользователей
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',  # django-toolbar
@@ -53,11 +54,12 @@ TEMPLATES = [
         ],  # Позволяет прописывать НЕстандартные пути к файлам шаблона
         'APP_DIRS': True,  # Говорит, что шаблоны нужно искать в директории templates. Если False-не найдет шаблон+django-toolbar
         'OPTIONS': {
-            'context_processors': [
+            'context_processors': [         # Шаблонные Контекстные Процессоры
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.request',   # ШКП обеспечивает переменной переме-ой request, внутри шаблонов
+                'django.contrib.auth.context_processors.auth',  # ШКП дает мне user в html, изпользую при отображении  Войти или Зарегаться
                 'django.contrib.messages.context_processors.messages',
+                'users.context_processors.get_women_context',   # Мой Шаблонный Контекстный Процессор (menu) [users-приложение, context_processors-фаил]
             ],
         },
     },
