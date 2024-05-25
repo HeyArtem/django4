@@ -129,3 +129,9 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Куда перенаправить пользователя после успешной авторизации
+LOGIN_REDIRECT_URL = 'home'
+
+# # задает url-адрес, на котор перена-ть пользо-ля после выхода
+LOGOUT_REDIRECT_URL = 'home'

@@ -5,18 +5,18 @@
 
 <form method="post">
     {% csrf_token %}
-<!--    &lt;!&ndash;Доп параметр next (например перенаправление)&ndash;&gt;-->
-<!--    <input type="hidden" name="next" value="{{ next }}">-->
-<!--    &lt;!&ndash;non_field_errors - Общая коллекция ошибок, котор не связаны с тем или иным полем&ndash;&gt;-->
-<!--    <div class="form-error">{{ form.non_field_errors }}</div>-->
-<!--    {% for f in form %}-->
-<!--    <p><label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</p>-->
-<!--    &lt;!&ndash; f.errors - Вывод ошибок&ndash;&gt;-->
-<!--    <div class="form-error">{{ f.errors }}</div>-->
-<!--    {% endfor %}-->
-<!--    <p><button type="submit">Отправить</button></p>-->
-    {{form.as_p}}
-    <p><button type="submit">Войти</button></bu></p>
+    <!--Доп параметр next (например перенаправление), .../login/?next=/addpage/-->
+    <input type="hidden" name="next" value="{{ next }}">
+    <!--non_field_errors - Общая коллекция ошибок, котор не связаны с тем или иным полем-->
+    <div class="form-error">{{ form.non_field_errors }}</div>
+    {% for f in form %}
+    <p><label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</p>
+    <!-- f.errors - Вывод ошибок-->
+    <div class="form-error">{{ f.errors }}</div>
+    {% endfor %}
+    <p><button type="submit">Отправить</button></p>
+<!--    {{form.as_p}}-->
+<!--    <p><button type="submit">Войти</button></bu></p>-->
 </form>
 
 {% endblock %}
