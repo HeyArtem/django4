@@ -7,7 +7,8 @@ from .models import Women, Category, TagPost, UpLoadFiles
 from .forms import AddPostForm, UploadFileForm
 from django.views import View
 from .utils import DataMixin
-
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class WomenHome(DataMixin, ListView):
     '''
@@ -41,8 +42,18 @@ class WomenHome(DataMixin, ListView):
         return Women.published.all().select_related('cat')
 
 
+
+
+@login_required
 def about(request):
-    '''О сайте'''
+    '''
+        О сайте
+        I Var:
+        @login_required - доступна, только зареганым (работает в связке с LOGIN_URL(settings))
+
+        II Var:
+        @login_required(login_url='/admin/')-здесь мой адрес перенаправления (это более высокий прио-тет, чем LOGIN_URL)
+    '''
     print('[!] def about(request)')
     contact_list = Women.published.all().select_related('cat')
     paginator = Paginator(contact_list, 3)
@@ -68,7 +79,7 @@ def about(request):
     )
 
 
-class AddPage(DataMixin, CreateView):
+class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     '''
     Добавление статьи. Автоматизированное представление html-формы.
     Передает в шаблон переменную form.
@@ -86,6 +97,9 @@ class AddPage(DataMixin, CreateView):
     # reverse - возвращает полный маршрут, но при запуске кода, будет ошибка, тк маршрут 'home'не существует на момент определения AddPage-класса
     # reverse_lazy - потому, что она будет выполняться, когда придет ее очередь (ее можно всегда вызывать за место reverse)
     success_url = reverse_lazy('home')
+
+    # URL адрес на который перевести неавторизованного пользователя работает в связке с LoginRequiredMixin
+    # login_url = '/admin/'
 
 
 class UpdatePage(DataMixin, UpdateView):

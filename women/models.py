@@ -2,6 +2,7 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 
 
 # def translit_to_eng(s: str) -> str:
@@ -19,8 +20,7 @@ from django.urls import reverse
 
 class PublishedManager(models.Manager):
     '''
-    Это менеджер, который будет возвращать только опубликованные
-    статьи.
+        Это менеджер, который будет возвращать только опубликованные статьи.
     '''
 
     def get_queryset(self):
@@ -30,8 +30,8 @@ class PublishedManager(models.Manager):
 class Women(models.Model):
     class Status(models.IntegerChoices):
         '''
-        Что-бы статус выводился форме, при заполнении
-        и для понятности PublishedManager (1 или 0 малопонятно)
+            Что-бы статус выводился форме, при заполнении
+            и для понятности PublishedManager (1 или 0 малопонятно)
         '''
         DRAFT = 0, 'Черновик'
         PUBLISHED = 1, 'Опубликовано'
@@ -84,6 +84,15 @@ class Women(models.Model):
         blank=True,
         related_name='women',
         verbose_name='Муж'
+    )
+
+    # Для связывания автора постов с его постами (в режиме, когда он  авторизовался)
+    author = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.SET_NULL,
+        related_name='posts',
+        null=True,
+        default=None
     )
 
     # Что бы после создания нового менеджера PublishedManager,

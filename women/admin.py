@@ -33,7 +33,7 @@ class MarriedFilter(admin.SimpleListFilter):
 @admin.register(Women)
 class WomenAdmin(admin.ModelAdmin):
     # Поля, котор будут отображаться в форме
-    fields = ['title', 'slug', 'content', 'photo', 'post_photo', 'cat', 'husband', 'tags']
+    fields = ['title', 'slug', 'content', 'photo', 'post_photo', 'cat', 'husband', 'tags', 'author']
     # exclude = ['tags', 'is_published']  # Антипод fields (исключить поля)
 
     # Поля только для чтения
@@ -47,7 +47,7 @@ class WomenAdmin(admin.ModelAdmin):
     # filter_vertical = ['tags']
 
     # ДопПоля в админке с женщинами
-    list_display = ('title', 'post_photo', 'time_create', 'is_published', 'cat')
+    list_display = ('title', 'post_photo', 'time_create', 'is_published', 'cat', 'author')
 
     # Кликабельность полей д\редактирования (не должно быть в list_editable)
     list_display_links = ('title',)

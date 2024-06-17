@@ -133,5 +133,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Куда перенаправить пользователя после успешной авторизации
 LOGIN_REDIRECT_URL = 'home'
 
-# # задает url-адрес, на котор перена-ть пользо-ля после выхода
+# задает url-адрес, на котор перена-ть пользо-ля после выхода
 LOGOUT_REDIRECT_URL = 'home'
+
+# Куда, перевести незареганного пользователя, при посещении закрытой страницы.
+# Альтернатива: @login_required(login_url='/admin/') (in women/views.py)
+LOGIN_URL = 'users:login'
