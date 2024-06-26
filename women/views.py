@@ -84,6 +84,7 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     Добавление статьи. Автоматизированное представление html-формы.
     Передает в шаблон переменную form.
     Добавляю mixin.
+    LoginRequiredMixin-граничивает доступ незареганым пользователям
     '''
     print('[!] class AddPage(CreateView)')
     # Класс формы (без вызова)
@@ -98,8 +99,17 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     # reverse_lazy - потому, что она будет выполняться, когда придет ее очередь (ее можно всегда вызывать за место reverse)
     success_url = reverse_lazy('home')
 
-    # URL адрес на который перевести неавторизованного пользователя работает в связке с LoginRequiredMixin
+    # URL адрес на который (если нужно) перевести неавторизованного пользователя работает в связке с LoginRequiredMixin
     # login_url = '/admin/'
+    # login_url = '/category/sportsmenki/'
+
+    def form_valid(self, form):
+        '''
+            Автоматическая индентификация автора, добавившего статью
+        '''
+        w = form.save(commit=False) # commit=False-не буду записывать в БД
+        w.author = self.request.user    # присвоил атрибуту текущего пользователя
+        return super().form_valid(form) # записал и БД
 
 
 class UpdatePage(DataMixin, UpdateView):
