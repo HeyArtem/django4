@@ -1,13 +1,13 @@
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
-from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm
+from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
 
 
 class LoginUser(LoginView):
@@ -32,10 +32,11 @@ class RegisterUser(CreateView):
     '''
         Класс представления для регистрации пользователя
     '''
-    form_class = RegisterUserForm   # Моя форма из forms.py
+    form_class = RegisterUserForm  # Моя форма из forms.py
     template_name = 'users/register.html'  # Шаблон котор использую
     extra_context = {'title': 'Регистрация111'}
-    success_url = reverse_lazy('users:login')   # Маршрут куда перенаправить пользователя, после успешной регистрации
+    success_url = reverse_lazy('users:login')  # Маршрут куда перенаправить пользователя, после успешной регистрации
+
 
 class ProfileUser(LoginRequiredMixin, UpdateView):
     '''
@@ -45,8 +46,8 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
             UpdateView-базовый класс, отвечает за изменение текущих записей
     '''
     model = get_user_model()
-    form_class = ProfileUserForm   # Моя форма из forms.py
-    template_name = 'users/profile.html'     # Шаблон
+    form_class = ProfileUserForm  # Моя форма из forms.py
+    template_name = 'users/profile.html'  # Шаблон
     extra_context = {'title': 'Профиль пользователя'}
 
     def get_success_url(self):
@@ -66,3 +67,11 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         return self.request.user
 
 
+class UserPasswordChange(PasswordChangeView):
+    '''
+        Класс представленияд\смены пароля
+        UserPasswordChangeForm-мой класс из forms.py
+    '''
+    form_class = UserPasswordChangeForm
+    success_url = reverse_lazy("users:password_change_done")
+    template_name = "users/password_change_form.html"
