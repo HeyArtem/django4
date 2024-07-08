@@ -76,3 +76,35 @@ class RegisterUserForm(UserCreationForm):
         if get_user_model().objects.filter(email=email).exists():
             raise forms.ValidationError('Такой E-mail уже существует!')
         return email
+
+class ProfileUserForm(forms.ModelForm):
+    '''
+        Форма д\отображения, пользовательского профайла.
+    '''
+    username = forms.CharField(
+        disabled=True,  # Невозможно редактировать
+        label='Логин',
+        widget=forms.TextInput(attrs={'class': 'form-input'})
+    )
+    email = forms.CharField(
+        disabled=True,
+        label='E-mail',
+        widget=forms.TextInput(attrs={'class': 'form-input'})
+    )
+    class Meta:
+        '''
+            class Meta - т.к. эта форма связана с моделью
+            labels - метки д\полей
+        '''
+        model = get_user_model()
+        fields = ['username', 'email', 'first_name', 'last_name']
+        labels = {
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+        }
+        # Стили
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-input'}),
+        }
+

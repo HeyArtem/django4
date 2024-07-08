@@ -1,12 +1,13 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 
-from .forms import LoginUserForm, RegisterUserForm
+from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm
 
 
 class LoginUser(LoginView):
@@ -36,26 +37,32 @@ class RegisterUser(CreateView):
     extra_context = {'title': 'Регистрация111'}
     success_url = reverse_lazy('users:login')   # Маршрут куда перенаправить пользователя, после успешной регистрации
 
-# def register(request):
-#     if request.method == 'POST':
-#         form = RegisterUserForm(request.POST)
-#         if form.is_valid():
-#             '''
-#                 Если метод передачи POST,
-#                 создаю форму с данными, котор были переданы,
-#                 проверяю, что все поля заполнены верно,
-#                 создаю объект user, но не заношу в БД,
-#                 шифрую пароль (метод set_password) и заношу его в атрибут 'password',
-#                 записываю в БД
-#
-#             '''
-#             user = form.save(commit=False)
-#             user.set_password(form.cleaned_data['password'])
-#             user.save()
-#             return render(request, 'users/register_done.html')
-#     else:
-#         '''
-#         Если GET-запрос, формирую пустую форму и отображаю на register.html
-#         '''
-#         form = RegisterUserForm()
-#     return render(request, 'users/register.html', {'form': form})
+class ProfileUser(LoginRequiredMixin, UpdateView):
+    '''
+        Класс д\представления формы профайла
+        Наследуюсь от:
+            LoginRequiredMixin-т.к. профаил могут просматривать только авторизованные пользователи
+            UpdateView-базовый класс, отвечает за изменение текущих записей
+    '''
+    model = get_user_model()
+    form_class = ProfileUserForm   # Моя форма из forms.py
+    template_name = 'users/profile.html'     # Шаблон
+    extra_context = {'title': 'Профиль пользователя'}
+
+    def get_success_url(self):
+        '''
+            Метод, что бы джанго знал, куда перенаправляться
+            если я какие-то поля поменяю и сохраню
+        '''
+        return reverse_lazy('users:profile')
+
+    def get_object(self, queryset=None):
+        '''
+            Метод выводит запись, которая будет отображаться и редактироваться.
+            Потому что до этого, в urls, я выводил в профайле пользователя
+            по 'profile/<int:pk>/' и это позволяло пользователю просматривать
+            профайлы других поль-ей
+        '''
+        return self.request.user
+
+

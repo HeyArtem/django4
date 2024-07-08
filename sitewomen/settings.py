@@ -139,3 +139,9 @@ LOGOUT_REDIRECT_URL = 'home'
 # Куда, перевести незареганного пользователя, при посещении закрытой страницы.
 # Альтернатива: @login_required(login_url='/admin/') (in women/views.py)
 LOGIN_URL = 'users:login'
+
+# Бэкенд аутентификации пользователя (стандартный и мой)
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend", # Стандартный бекенд, авторизирует по username&password
+    "users.authentication.EmailAuthBackend" # авторизирует по e-mail. Из прилож users, обращаюсь к моему классу EmailAuthBackend
+]
