@@ -17,6 +17,9 @@
     <p><button type="submit">Отправить</button></p>
 <!--    {{form.as_p}}-->
 <!--    <p><button type="submit">Войти</button></bu></p>-->
+
+<!-- Переход на восстановление пароля-->
+<p><a href="{% url 'users:password_reset' %}">Забыли пароль?</a></p>
 </form>
 
 {% endblock %}
