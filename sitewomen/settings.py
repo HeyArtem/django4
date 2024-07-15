@@ -147,4 +147,23 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # Консольный бэкенд, для восстановления пароля
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# smtp backend
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+# Адрес почтового сервера
+EMAIL_HOST = 'smtp.yandex.ru'
+# Порт
+EMAIL_PORT = '465'
+# Текущий мэил адрес
+EMAIL_HOST_USER = 'maidanoff.artem@yandex.ru'
+# Пароль для SMTP сервера
+EMAIL_HOST_PASSWORD = 'lrfoozqyocewftmk'
+# Использовать ssl
+EMAIL_USE_SSL = True
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
+EMAIL_ADMIN = EMAIL_HOST_USER
+
