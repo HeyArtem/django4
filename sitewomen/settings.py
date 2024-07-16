@@ -167,3 +167,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
 
+# Подключаю модель абстрактного юзера (приложение users, User имя используемой модели в текущем проекте фреймворка Django.)
+# По умолчанию было 'auth.User' (auth-берется из модуля аутентификации)
+AUTH_USER_MODEL = 'users.User'
+
+# Ава пользователя по умолчанию. MEDIA_URL-папка media и т.д.
+DEFAULT_USER_IMAGE = MEDIA_URL + 'users/default.png'
