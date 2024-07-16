@@ -159,7 +159,7 @@ EMAIL_PORT = '465'
 # Текущий мэил адрес
 EMAIL_HOST_USER = 'maidanoff.artem@yandex.ru'
 # Пароль для SMTP сервера
-EMAIL_HOST_PASSWORD = 'lrfoozqyocewftmk'
+EMAIL_HOST_PASSWORD = 'XXXXXXXXXX'
 # Использовать ssl
 EMAIL_USE_SSL = True
 
