@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'women.apps.WomenConfig',
     'users',   # Авторизация и регистрация пользователей
     'debug_toolbar',    # django-toolbar
+    'social_django',    # Аутентификация через соц.сети
 ]
 
 MIDDLEWARE = [
@@ -142,6 +143,7 @@ LOGIN_URL = 'users:login'
 
 # Бэкенд аутентификации пользователя (стандартный и мой)
 AUTHENTICATION_BACKENDS = [
+    "social_core.backends.github.GithubOAuth2",  # Автори-я пользов-ля через github
     "django.contrib.auth.backends.ModelBackend", # Стандартный бекенд, авторизирует по username&password
     "users.authentication.EmailAuthBackend" # авторизирует по e-mail. Из прилож users, обращаюсь к моему классу EmailAuthBackend
 ]

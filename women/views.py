@@ -7,8 +7,9 @@ from .models import Women, Category, TagPost, UpLoadFiles
 from .forms import AddPostForm, UploadFileForm
 from django.views import View
 from .utils import DataMixin
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+
 
 class WomenHome(DataMixin, ListView):
     '''
@@ -79,12 +80,12 @@ def about(request):
     )
 
 
-class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+class AddPage(PermissionRequiredMixin, LoginRequiredMixin, DataMixin, CreateView):
     '''
-    Добавление статьи. Автоматизированное представление html-формы.
-    Передает в шаблон переменную form.
-    Добавляю mixin.
-    LoginRequiredMixin-граничивает доступ незареганым пользователям
+        Добавление статьи. Автоматизированное представление html-формы.
+        Передает в шаблон переменную form.
+        Добавляю mixin.
+        LoginRequiredMixin-граничивает доступ незареганым пользователям
     '''
     print('[!] class AddPage(CreateView)')
     # Класс формы (без вызова)
@@ -93,6 +94,14 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     # Имя шаблона
     template_name = 'women/addpage.html'
     title_page = 'Добавление статьи'
+    '''
+        Разрешения для пользователя, что бы получить доступ к этой странице создания постов (PermissionRequiredMixin)
+            women -имя приложения
+            add -добавление записи
+            _women -имя таблицы с которым связано разрешение
+        <приложение>.<действие>_<таблица>        
+    '''
+    permission_required = 'women.add_women'
 
     # URL на который будет перенаправление после успешной отправки данных
     # reverse - возвращает полный маршрут, но при запуске кода, будет ошибка, тк маршрут 'home'не существует на момент определения AddPage-класса
@@ -112,8 +121,8 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
         return super().form_valid(form) # записал и БД
 
 
-class UpdatePage(DataMixin, UpdateView):
-    ''' Изменение существ-их записей) '''
+class UpdatePage(PermissionRequiredMixin, DataMixin, UpdateView):
+    ''' Изменение существ-их записей '''
     print('[!] class UpdatePage(UpdateView)')
     model = Women
     fields = ['title', 'content', 'photo', 'cat', 'is_published', ]
@@ -121,12 +130,20 @@ class UpdatePage(DataMixin, UpdateView):
     # Имя шаблона
     template_name = 'women/addpage.html'
 
+    # Разрешения для пользователя, что бы получить доступ к редактированию постов
+    permission_required = 'women.change_women'
+
     # URL на который будет перенаправление после успешной отправки данных
     # reverse - возвращает полный маршрут, но при запуске кода, будет ошибка, тк маршрут 'home'не существует на момент определения AddPage-класса
     # reverse_lazy - потому, что она будет выполняться, когда придет ее очередь (ее можно всегда вызывать за место reverse)
     success_url = reverse_lazy('home')
     title_page = 'Редачу статейку'
 
+
+@permission_required(perm='women.add_women', raise_exception=True)
+    # @permission_required -Разрешения для пользователя (в функциях)
+    #     perm='women.view_women -разрешение
+    #     raise_exception=True -необходим д\генерации '403 Forbidden' иначе перенап-е на стр Авторизации (неестественно для зареганного)
 
 def contact(request):
     '''Обратная связь'''

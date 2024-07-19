@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
 {% block breadcrumbs %}
+<!--Работа с разрешениями-->
+{% if perms.women.change_women %}
+    <!--Пользователи котор имеют разрешение women.change_women -увидят ссылку-->
+    <p><a href="{% url 'edit_page' post.slug %}">Редактировать</a></p>
+{% endif %}
     <!--Теги-->
     {% with post.tags.all as tags %}
         {% if tags %}
